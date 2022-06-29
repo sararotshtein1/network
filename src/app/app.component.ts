@@ -107,6 +107,7 @@ let g=new Graph(4);
     })
     this.graph.getEdgDarga();
   }
+  
 
   findDarga(arr, key): number {
   
