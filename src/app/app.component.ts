@@ -20,8 +20,8 @@ export class AppComponent {
   graph:Graph
 
   constructor(private excelService: ExcelServiceService) {
-  
    
+let g=new Graph(4);
     // g.printGraph();
    // this.excelService.readFileNetwork();
   }
@@ -44,12 +44,11 @@ export class AppComponent {
       /* grab second sheet */
       const wsname2: string = wb.SheetNames[1];
       const ws2: XLSX.WorkSheet = wb.Sheets[wsname2];
-      console.log('dataJson1', 'fd');
 
       this.dataJsonNodes = XLSX.utils.sheet_to_json<Nodes>(ws);
       console.log('dataJson1', this.dataJsonNodes[0]);
-      let dataJsonEdges = XLSX.utils.sheet_to_json<Edges>(ws2);
-      console.log('dataJson2', dataJsonEdges[0]);
+      this.dataJsonEdges = XLSX.utils.sheet_to_json<Edges>(ws2);
+      console.log('dataJson2', this.dataJsonEdges[0]);
 
       /* get array duplicate and num repeat in array- question 1 */
       this.getArrayNotDupplicate();
@@ -57,11 +56,15 @@ export class AppComponent {
        
      
       /* get number nodes- question 2*/
-      console.log('nodes', this.dataJsonNodes.length); ///1
-      console.log('edges', this.notDupplicateValue.length); ////2
+      let numNodes=this.dataJsonNodes.length
+      let numEdges=this.notDupplicateValue.length
+      console.log('nodes',numNodes ); ///1
+      console.log('edges', numEdges); ////2
+     const evg=numEdges /numNodes
+    //  let avg = this.findDarga(this.notDupplicateValue, 'source'); ////3
+      console.log('Avg. Dergee',evg ); //3
 
-      let avg = this.findDarga(this.notDupplicateValue, 'source'); ////3
-      console.log('Avg. Dergee', avg);
+      this.buildGraph()
     };
     reader.readAsBinaryString(target.files[0]);
   }
@@ -91,11 +94,14 @@ export class AppComponent {
 
   buildGraph():void{
      //build graph
+     console.log("graph")
      this.graph = new Graph(this.dataJsonNodes.length);
      // adding vertices
      this.dataJsonNodes.forEach((x) => {
-       this.graph.addVertex(x)
+       this.graph.addVertex(x.Id)
      })
+    // this.graph.cc()
+    
      this.notDupplicateValue.forEach((x) => {
       this.graph.addEdge(x.Source,x.Target)
     })
