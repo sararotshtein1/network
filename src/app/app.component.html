@@ -1,0 +1,18 @@
+<input type="file" (change)="onFileChange($event)" multiple="false" />
+	<table>
+		<tbody>
+      <tr *ngFor="let row of data">
+			<td *ngFor="let val of row">
+				{{val}}
+			</td>
+		</tr>
+    </tbody>
+	</table>
+	<!-- <ngx-graph *ngIf="showGraph"
+  class="chart-container"
+  [view]="[800, 200]"
+  [showMiniMap]="true"
+  [links]="notDupplicateValue"
+  [nodes]="dataJsonNodes"
+>
+</ngx-graph> -->
