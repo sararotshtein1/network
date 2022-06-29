@@ -3,7 +3,7 @@ import { ExcelServiceService } from './services/excel-service.service';
 import * as XLSX from 'xlsx';
 import { Nodes } from './models/nodes';
 import { Edges } from './models/edges';
-import { Edge, Node } from '@swimlane/ngx-graph';
+import { Graph } from './models/graph';
 
 type AOA = any[][];
 
@@ -14,21 +14,19 @@ type AOA = any[][];
 })
 export class AppComponent {
   data: AOA;
-  dataJsonNodes:Node[]=[];
-  notDupplicateValue:Array<Edge> = new Array<Edge>()
-  showGraph:boolean=false
+  dataJsonNodes:Nodes[]=[];
+  dataJsonEdges:Edges[]=[];
+  notDupplicateValue:Array<Edges> = new Array<Edges>()
+  graph:Graph
 
   constructor(private excelService: ExcelServiceService) {
-
-    // this.excelService.readFileNetwork();
+  
+   
+    // g.printGraph();
+   // this.excelService.readFileNetwork();
   }
 
   onFileChange(evt: any) {
-    var graph = new graph();
-    graph.addNode('bar', { key: 'value'});
-    graph.addNode('foo', { key: 'value1'});
-
-    graph.addEdge('foo', 'bar');
     /* wire up file reader */
     const target: DataTransfer = <DataTransfer>evt.target;
     if (target.files.length !== 1) throw new Error('Cannot use multiple files');
@@ -48,37 +46,19 @@ export class AppComponent {
       const ws2: XLSX.WorkSheet = wb.Sheets[wsname2];
       console.log('dataJson1', 'fd');
 
-      this.dataJsonNodes = XLSX.utils.sheet_to_json<Node>(ws);
+      this.dataJsonNodes = XLSX.utils.sheet_to_json<Nodes>(ws);
       console.log('dataJson1', this.dataJsonNodes[0]);
-      let dataJsonEdges = XLSX.utils.sheet_to_json<Edge>(ws2);
+      let dataJsonEdges = XLSX.utils.sheet_to_json<Edges>(ws2);
       console.log('dataJson2', dataJsonEdges[0]);
 
       /* get array duplicate and num repeat in array- question 1 */
-      let counter = {};
-      dataJsonEdges.forEach(function (obj) {
-        var key = JSON.stringify(obj);
-        counter[key] = (counter[key] || 0) + 1;
-      });
-      
+      this.getArrayNotDupplicate();
 
-
-      let onlyDupplicateValue = new Array<Edge>();
-      // let notDupplicateValue = new Array<Edge>();
-      let numberEdges = 0;
-      for (var element in counter) {
-        numberEdges++;
-        let edge = JSON.parse(element);
-        edge.Id=numberEdges
-        //edge.NumberItems = counter[element];
-        this.notDupplicateValue.push(edge);
-        if (counter[element] > 1) onlyDupplicateValue.push(edge);
-      }
-      console.log('dupplicateValue one to exemple:', onlyDupplicateValue[0]);
-      this.showGraph=true
+       
+     
       /* get number nodes- question 2*/
-
       console.log('nodes', this.dataJsonNodes.length); ///1
-      console.log('edges', numberEdges); ////2
+      console.log('edges', this.notDupplicateValue.length); ////2
 
       let avg = this.findDarga(this.notDupplicateValue, 'source'); ////3
       console.log('Avg. Dergee', avg);
@@ -86,7 +66,44 @@ export class AppComponent {
     reader.readAsBinaryString(target.files[0]);
   }
 
+
+  getArrayNotDupplicate():void{
+         /* get array duplicate and num repeat in array- question 1 */
+      let counter = {};
+      this.dataJsonEdges.forEach(function (obj) {
+        var key = JSON.stringify(obj);
+        counter[key] = (counter[key] || 0) + 1;
+      });
+
+      let onlyDupplicateValue = new Array<Edges>();
+      // let notDupplicateValue = new Array<Edge>();
+      for (var element in counter) {
+        let edge = JSON.parse(element);
+        edge.NumberItems = counter[element];
+        this.notDupplicateValue.push(edge);
+        //weight
+        if (counter[element] > 1){
+          onlyDupplicateValue.push(edge);
+        } 
+      }
+      console.log('dupplicateValue one to exemple:', onlyDupplicateValue[0]);
+  }
+
+  buildGraph():void{
+     //build graph
+     this.graph = new Graph(this.dataJsonNodes.length);
+     // adding vertices
+     this.dataJsonNodes.forEach((x) => {
+       this.graph.addVertex(x)
+     })
+     this.notDupplicateValue.forEach((x) => {
+      this.graph.addEdge(x.Source,x.Target)
+    })
+    this.graph.getEdgDarga();
+  }
+
   findDarga(arr, key): number {
+  
     let arr2 = [];
     arr.forEach((x) => {
       if (
