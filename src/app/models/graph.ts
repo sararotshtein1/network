@@ -3,7 +3,7 @@ import { Nodes } from './nodes';
 
 export class Graph {
   noOfVertices: number;
-  AdjList: Map<Nodes, Edges[]>;
+  AdjList: Map<number, number[]>;
   constructor(noOfVertices) {
     this.noOfVertices = noOfVertices;
     this.AdjList = new Map();
@@ -50,10 +50,10 @@ export class Graph {
     var get_keys = this.AdjList.keys();
     let count = 0;
     let sum = 0;
-    console.log(is.AdjList.get(get_keys[0]));
-    console.log(is.AdjList.get(get_keys[1]));
-    console.log(is.AdjList.get(get_keys[2]));
-    console.log(is.AdjList.get(get_keys[3]));
+    console.log(this.AdjList.get(get_keys[0]));
+    console.log(this.AdjList.get(get_keys[1]));
+    console.log(this.AdjList.get(get_keys[2]));
+    console.log(this.AdjList.get(get_keys[3]));
 
     // iterate over the vertices
     for (var i of get_keys) {
